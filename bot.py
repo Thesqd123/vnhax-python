@@ -19,6 +19,9 @@ async def main():
     # Create the application instance
     application = Application.builder().token(TOKEN).build()
 
+    # Initialize the application
+    await application.initialize()
+
     # Define the command handlers
     async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         welcome_message = """
@@ -39,6 +42,9 @@ async def main():
 
     # Run the bot with polling
     await application.run_polling()
+
+    # Shutdown the application after completion
+    await application.shutdown()
 
 # Run the bot
 if __name__ == "__main__":
