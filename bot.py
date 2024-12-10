@@ -1,43 +1,31 @@
 from telegram import Update
-from telegram.ext import Application, CommandHandler
-import logging
+from telegram.ext import Updater, CommandHandler, CallbackContext
+from tenacity import retry, stop_after_attempt, wait_fixed
 
-# Set up logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Your Bot Token
+TOKEN = "7327073775:AAHS77p3lmuj9iMUMTbBcZ7iq6xakBzRK6o"
 
-# Use Application instead of Updater
-async def start(update: Update, context):
-    # Define the reply message with buttons
-    welcome_message = """
-    Welcome to VnHax Official Bot! Choose an option below:
-    """
-    
-    # You can add buttons here (e.g., inline buttons or keyboard buttons)
-    # Example:
-    reply_markup = {
-        "inline_keyboard": [
-            [
-                {"text": "🗣️ Inquiry / سؤال", "url": "https://t.me/+2O18lpzpF_ZiZjY1"},
-                {"text": "📢 Official Channel / القناة الرسمية", "url": "https://t.me/+2O18lpzpF_ZiZjY1"},
-                {"text": "🛒 Purchase Now / شراء الآن", "url": "https://t.me/Thesqd"}
-            ]
-        ]
-    }
+# Request kwargs to set a custom timeout
+request_kwargs = {
+    'timeout': 60  # Set timeout to 60 seconds
+}
 
-    # Send welcome message with buttons
-    await update.message.reply_text(welcome_message, reply_markup=reply_markup)
+# Initialize Updater with token and custom request kwargs
+updater = Updater(TOKEN, request_kwargs=request_kwargs, use_context=True)
 
+# Retry the main bot loop in case of failure
+@retry(stop=stop_after_attempt(3), wait=wait_fixed(5))
 def main():
-    # Create Application instance using the bot token
-    application = Application.builder().token("7327073775:AAHS77p3lmuj9iMUMTbBcZ7iq6xakBzRK6o").build()
+    # Add handlers for your bot's commands
+    def start(update: Update, context: CallbackContext):
+        update.message.reply_text("Welcome to the bot!")
 
-    # Add the handler for the /start command
-    application.add_handler(CommandHandler("start", start))
+    # Add command handler for '/start'
+    updater.dispatcher.add_handler(CommandHandler("start", start))
 
-    # Run the bot
-    application.run_polling()
+    # Start polling for updates
+    print("Bot started. Waiting for updates...")
+    updater.start_polling()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
