@@ -1,30 +1,36 @@
-import os
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import Application, CommandHandler, ContextTypes
+from telegram.ext import Updater, CommandHandler, CallbackContext
+from telegram import Update
 
-# Bot commands
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    welcome_message = "Welcome to VnHax Official! Please choose an option below to get started:"
-    keyboard = [
-        [InlineKeyboardButton("🗣️ Inquiry / سؤال", url="https://t.me/+2O18lpzpF_ZiZjY1")],
-        [InlineKeyboardButton("📢 Official Channel / القناة الرسمية", url="https://t.me/+2O18lpzpF_ZiZjY1")],
-        [InlineKeyboardButton("🛒 Purchase Now / شراء الآن", url="https://t.me/Thesqd")],
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text(welcome_message, reply_markup=reply_markup)
+# Your bot token
+TOKEN = "7327073775:AAHS77p3lmuj9iMUMTbBcZ7iq6xakBzRK6o"
 
-def main():
-    # Bot Token
-    TOKEN = os.getenv("BOT_TOKEN", "7327073775:AAHS77p3lmuj9iMUMTbBcZ7iq6xakBzRK6o")
+# Custom timeout configuration (adjust as needed)
+request_kwargs = {
+    'read_timeout': 20,  # 20 seconds to read data from Telegram
+    'connect_timeout': 20  # 20 seconds to establish connection to Telegram
+}
 
-    # Initialize the Application
-    application = Application.builder().token(TOKEN).build()
+# Function to start the bot
+def start(update: Update, context: CallbackContext):
+    update.message.reply_text(
+        "Welcome to the VnHax Official Bot!\n\n"
+        "Please choose one of the options below:\n"
+        "🗣️ Inquiry / سؤال - https://t.me/+2O18lpzpF_ZiZjY1\n"
+        "📢 Official Channel / القناة الرسمية  - https://t.me/+2O18lpzpF_ZiZjY1\n"
+        "🛒 Purchase Now / شراء الآن  - https://t.me/Thesqd"
+    )
 
-    # Command Handlers
-    application.add_handler(CommandHandler("start", start))
+# Initialize Updater with the token and custom timeouts
+updater = Updater(token=TOKEN, request_kwargs=request_kwargs, use_context=True)
 
-    # Start the Bot
-    application.run_polling()
+# Dispatcher to handle commands
+dispatcher = updater.dispatcher
 
-if __name__ == "__main__":
-    main()
+# Add command handler for '/start'
+dispatcher.add_handler(CommandHandler('start', start))
+
+# Start polling for updates (to keep bot running)
+updater.start_polling()
+
+# Idle to keep the bot running
+updater.idle()
